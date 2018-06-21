@@ -252,13 +252,74 @@ type ErrorResponse struct {
 	Cause   []ErrorCause `json:"cause"`
 }
 
+// SearchParameter - estrutura com nome e valor dos parâmetros a serem passados para realização da busca
+type SearchParameter struct {
+	Name  string
+	Value string
+}
+
+type Paging struct {
+	Total  int `json:"total"`
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type SearchResponse struct {
+	Paging  Paging    `json:"paging"`
+	Results []Payment `json:"results"`
+}
+
+//=========================================================================//
+//===============================Funções===================================//
+//=========================================================================//
+
+// SearchPayments busca os pagamentos conforme a lista de parâmetros passada.
+func SearchPayments(parameters []SearchParameter, accessToken string) (SearchResponse, error) {
+
+	var uri = paymentsURI + "search?"
+
+	if parameters != nil {
+		for _, element := range parameters {
+			uri += element.Name + "=" + element.Value + "&"
+		}
+	}
+
+	uri += "access_token=" + accessToken
+
+	var searchResponse SearchResponse
+
+	response, err := http.Get(uri)
+
+	if err != nil {
+		return searchResponse, err
+	}
+
+	data, _ := ioutil.ReadAll(response.Body)
+
+	fmt.Println(string(data))
+
+	if response.StatusCode >= 200 && response.StatusCode < 300 {
+		err = json.Unmarshal(data, &searchResponse)
+
+		return searchResponse, nil
+	}
+	var erroResposta ErrorResponse
+
+	err = json.Unmarshal(data, &erroResposta)
+
+	if err != nil {
+		return searchResponse, err
+	}
+
+	return searchResponse, errors.New(erroResposta.Message)
+}
+
 // GetPaymentByID busca um pagamento pelo seu id.
 func GetPaymentByID(id int, accessToken string) (Payment, error) {
 
 	var payment Payment
 
 	var uri = paymentsURI + strconv.Itoa(id) + "?access_token=" + accessToken
-	fmt.Println("Buscando pagamento na uri: " + uri)
 
 	response, err := http.Get(uri)
 
@@ -272,15 +333,14 @@ func GetPaymentByID(id int, accessToken string) (Payment, error) {
 		err = json.Unmarshal(data, &payment)
 
 		return payment, nil
-	} else {
-		var erroResposta ErrorResponse
-
-		err := json.Unmarshal(data, &erroResposta)
-
-		if err != nil {
-			return payment, err
-		}
-
-		return payment, errors.New(erroResposta.Message)
 	}
+	var erroResposta ErrorResponse
+
+	err = json.Unmarshal(data, &erroResposta)
+
+	if err != nil {
+		return payment, err
+	}
+
+	return payment, errors.New(erroResposta.Message)
 }
