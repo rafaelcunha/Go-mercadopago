@@ -2,6 +2,7 @@ package payments
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -160,29 +161,31 @@ type Refund struct {
 	Source               Source `json:"source"`
 }
 
+type Metadata struct {
+}
+
+type InternalMetadata struct {
+}
+
 // Payment estrutua para receber o Json de um pagamento
 type Payment struct {
-	ID                int    `json:"id"`
-	DateCreated       string `json:"date_created"`       // Formatar corretamente a data
-	DateApproved      string `json:"date_approved"`      // Formatar corretamente a data
-	DateLastUpdated   string `json:"date_last_updated"`  // Formatar corretamente a data
-	DateOfExpiration  string `json:"date_of_expiration"` // Formatar corretamente a data
-	MoneyReleaseDate  string `json:"money_release_date"` // Formatar corretamente a data
-	OperationType     string `json:"operation_type"`
-	IssuerID          string `json:"issuer_id"`
-	CollectorID       int    `json:"collector_id"`
-	Payer             Payer  `json:"payer"`
-	BinaryMode        bool   `json:"binary_mode"`
-	LiveMode          bool   `json:"live_mode"`
-	Order             Order  `json:"order"`
-	ExternalReference string `json:"external_reference"`
-	Description       string `json:"description"`
-	//Metadata                  string             `json:"metadata"`  "metadata": {},
-	/*InternalMetadata                  string             `json:"internal_metadata"`
-		"internal_metadata": {
-	        "subtype": "store",
-	        "type": "qr"
-	    },*/
+	ID                        int                `json:"id"`
+	DateCreated               string             `json:"date_created"`       // Formatar corretamente a data
+	DateApproved              string             `json:"date_approved"`      // Formatar corretamente a data
+	DateLastUpdated           string             `json:"date_last_updated"`  // Formatar corretamente a data
+	DateOfExpiration          string             `json:"date_of_expiration"` // Formatar corretamente a data
+	MoneyReleaseDate          string             `json:"money_release_date"` // Formatar corretamente a data
+	OperationType             string             `json:"operation_type"`
+	IssuerID                  string             `json:"issuer_id"`
+	CollectorID               int                `json:"collector_id"`
+	Payer                     Payer              `json:"payer"`
+	BinaryMode                bool               `json:"binary_mode"`
+	LiveMode                  bool               `json:"live_mode"`
+	Order                     Order              `json:"order"`
+	ExternalReference         string             `json:"external_reference"`
+	Description               string             `json:"description"`
+	Metadata                  Metadata           `json:"metadata"`
+	InternalMetadata          InternalMetadata   `json:"internal_metadata"`
 	CurrencyID                string             `json:"currency_id"`
 	TransactionAmount         float32            `json:"transaction_amount"`
 	TransactionAmountRefunded float32            `json:"transaction_amount_refunded"`
@@ -236,8 +239,23 @@ type Payment struct {
 	Refunds          []Refund  `json:"refunds"`
 }
 
+type ErrorCause struct {
+	Code        int    `json:"code"`
+	Description string `json:"description"`
+	Data        string `json:"data"`
+}
+
+type ErrorResponse struct {
+	Message string       `json:"message"`
+	Error   string       `json:"error"`
+	Status  int          `json:"status"`
+	Cause   []ErrorCause `json:"cause"`
+}
+
 // GetPaymentByID busca um pagamento pelo seu id.
-func GetPaymentByID(id int, accessToken string) (payment Payment, err error) {
+func GetPaymentByID(id int, accessToken string) (Payment, error) {
+
+	var payment Payment
 
 	var uri = paymentsURI + strconv.Itoa(id) + "?access_token=" + accessToken
 	fmt.Println("Buscando pagamento na uri: " + uri)
@@ -245,12 +263,24 @@ func GetPaymentByID(id int, accessToken string) (payment Payment, err error) {
 	response, err := http.Get(uri)
 
 	if err != nil {
-		return
+		return payment, err
 	}
 
 	data, _ := ioutil.ReadAll(response.Body)
 
-	err = json.Unmarshal(data, &payment)
+	if response.StatusCode >= 200 && response.StatusCode < 300 {
+		err = json.Unmarshal(data, &payment)
 
-	return
+		return payment, nil
+	} else {
+		var erroResposta ErrorResponse
+
+		err := json.Unmarshal(data, &erroResposta)
+
+		if err != nil {
+			return payment, err
+		}
+
+		return payment, errors.New(erroResposta.Message)
+	}
 }
