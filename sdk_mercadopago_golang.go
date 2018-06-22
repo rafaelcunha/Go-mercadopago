@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/rafaelcunha/sdk_mercadopago_golang/payments"
+	"github.com/rafaelcunha/Go-mercadopago/payments"
 )
 
 func main() {
-	/*pagamento, err := payments.GetPaymentByID(3678606946, "APP_USR-8387298048269828-041717-0512a631b5ef748a19c384d028af76e1-52192556")
+	/*pagamento, err := payments.GetPaymentByID(3678606946, "APP_USR-...")
 
 	if err != nil {
 		fmt.Println(err)
@@ -27,7 +27,7 @@ func main() {
 		},
 	}*/
 
-	searchResponse, err := payments.SearchPayments(nil, "APP_USR-8387298048269828-041717-0512a631b5ef748a19c384d028af76e1-52192556")
+	searchResponse, err := payments.SearchPayments(nil, "APP_USR-...")
 
 	if err != nil {
 		fmt.Println(err)
