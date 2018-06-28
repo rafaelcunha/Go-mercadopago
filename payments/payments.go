@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
 )
@@ -250,7 +249,7 @@ func SearchPayments(parameters []mpgeral.SearchParameter, accessToken string) (S
 		return searchResponse, err
 	}
 
-	err = json.NewDecoder(strings.NewReader(resposta)).Decode(&searchResponse)
+	err = json.Unmarshal(resposta, &searchResponse)
 
 	if err != nil {
 		return searchResponse, err
@@ -276,13 +275,13 @@ func GetPaymentByID(id int, accessToken string) (Payment, error) {
 
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
 
-		err = json.NewDecoder(strings.NewReader(string(data))).Decode(&payment)
+		err = json.Unmarshal(data, &payment)
 
 		return payment, nil
 	}
 	var erroResposta mpgeral.ErrorResponse
 
-	err = json.NewDecoder(strings.NewReader(string(data))).Decode(&erroResposta)
+	err = json.Unmarshal(data, &erroResposta)
 
 	if err != nil {
 		return payment, err

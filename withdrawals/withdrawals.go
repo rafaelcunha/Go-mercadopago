@@ -2,7 +2,6 @@ package withdrawals
 
 import (
 	"encoding/json"
-	"strings"
 
 	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
 )
@@ -64,7 +63,7 @@ func SearchWithdrawals(parameters []mpgeral.SearchParameter, accessToken string)
 		return searchResponse, err
 	}
 
-	err = json.NewDecoder(strings.NewReader(resposta)).Decode(&searchResponse)
+	err = json.Unmarshal(resposta, &searchResponse)
 
 	if err != nil {
 		return searchResponse, err

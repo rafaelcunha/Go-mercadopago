@@ -55,7 +55,7 @@ type SearchResponse struct {
 }
 
 // APISearch - busca em alguma API conforme a lista de parâmetros passada.
-func APISearch(parameters []SearchParameter, uriBase string, accessToken string) (string, error) {
+func APISearch(parameters []SearchParameter, uriBase string, accessToken string) ([]byte, error) {
 
 	var uri = uriBase + "search?"
 
@@ -72,21 +72,21 @@ func APISearch(parameters []SearchParameter, uriBase string, accessToken string)
 	response, err := http.Get(uri)
 
 	if err != nil {
-		return string(data), err
+		return data, err
 	}
 
 	data, _ = ioutil.ReadAll(response.Body)
 
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
-		return string(data), nil
+		return data, nil
 	}
 	var erroResposta ErrorResponse
 
 	err = json.NewDecoder(strings.NewReader(string(data))).Decode(&erroResposta)
 
 	if err != nil {
-		return string(data), err
+		return data, err
 	}
 
-	return string(data), errors.New(erroResposta.Message)
+	return data, errors.New(erroResposta.Message)
 }
