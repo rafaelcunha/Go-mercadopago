@@ -3,19 +3,15 @@ package payments
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
+
+	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
 )
 
-const mpURI string = "https://api.mercadopago.com/v1/"
-const paymentsURI string = mpURI + "payments/"
-
-type Identification struct {
-	Type   string `json:"type"`
-	Number string `json:"number"`
-}
+const paymentsURI string = mpgeral.MPURI + "payments/"
 
 type Phone struct {
 	AreaCode  string `json:"area_code"`
@@ -24,30 +20,30 @@ type Phone struct {
 }
 
 type Payer struct {
-	EntityType     string         `json:"entity_type"`
-	Type           string         `json:"type"`
-	ID             string         `json:"id"`
-	Email          string         `json:"email"`
-	Identification Identification `json:"identification"`
-	Phone          Phone          `json:"phone"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
+	EntityType     string                 `json:"entity_type"`
+	Type           string                 `json:"type"`
+	ID             int                    `json:"id"`
+	Email          string                 `json:"email"`
+	Identification mpgeral.Identification `json:"identification"`
+	Phone          Phone                  `json:"phone"`
+	FirstName      string                 `json:"first_name"`
+	LastName       string                 `json:"last_name"`
 }
 
 type Collector struct {
-	EntityType     string         `json:"entity_type"`
-	Type           string         `json:"type"`
-	ID             int            `json:"id"`
-	Email          string         `json:"email"`
-	Identification Identification `json:"identification"`
-	Phone          Phone          `json:"phone"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
+	EntityType     string                 `json:"entity_type"`
+	Type           string                 `json:"type"`
+	ID             int                    `json:"id"`
+	Email          string                 `json:"email"`
+	Identification mpgeral.Identification `json:"identification"`
+	Phone          Phone                  `json:"phone"`
+	FirstName      string                 `json:"first_name"`
+	LastName       string                 `json:"last_name"`
 }
 
 type Order struct {
 	Type string `json:"type"`
-	ID   string `json:"id"`
+	ID   int    `json:"id"`
 }
 
 type TransactionDetails struct {
@@ -63,12 +59,12 @@ type TransactionDetails struct {
 }
 
 type Cardholder struct {
-	Name           string         `json:"name"`
-	Identification Identification `json:"identification"`
+	Name           string                 `json:"name"`
+	Identification mpgeral.Identification `json:"identification"`
 }
 
 type Card struct {
-	ID              string     `json:"id"`
+	ID              int        `json:"id"`
 	LastFourDigits  string     `json:"last_four_digits"`
 	FirstSixDigits  string     `json:"first_six_digits"`
 	ExpirationYear  int        `json:"expiration_year"`
@@ -176,7 +172,7 @@ type Payment struct {
 	DateOfExpiration          string             `json:"date_of_expiration"` // Formatar corretamente a data
 	MoneyReleaseDate          string             `json:"money_release_date"` // Formatar corretamente a data
 	OperationType             string             `json:"operation_type"`
-	IssuerID                  string             `json:"issuer_id"`
+	IssuerID                  int                `json:"issuer_id"`
 	CollectorID               int                `json:"collector_id"`
 	Payer                     Payer              `json:"payer"`
 	BinaryMode                bool               `json:"binary_mode"`
@@ -218,7 +214,7 @@ type Payment struct {
 	CounterCurrency           int                `json:"counter_currency"`
 	SiteID                    string             `json:"site_id"`
 	Marketplace               string             `json:"marketplace"`
-	ApplicationID             int                `json:"application_id"`
+	ApplicationID             string             `json:"application_id"`
 	TransactionID             string             `json:"transaction_id"`
 	CouponID                  int                `json:"coupon_id"`
 	RiskExecutionID           int                `json:"risk_execution_id"`
@@ -232,41 +228,16 @@ type Payment struct {
 	MerchantAccountID         int                `json:"merchant_account_id"`
 	Acquirer                  int                `json:"acquirer"`
 	MerchantNumber            int                `json:"merchant_number"`
-	//AcquirerReconciliation    int                `json:"acquirer_reconciliation"`
+	//AcquirerReconciliation    []string             `json:"acquirer_reconciliation"`
 	DeductionSchema  int       `json:"deduction_schema"`
 	MoneyReleaseDays int       `json:"money_release_days"`
 	Collector        Collector `json:"collector"`
 	Refunds          []Refund  `json:"refunds"`
 }
 
-type ErrorCause struct {
-	Code        int    `json:"code"`
-	Description string `json:"description"`
-	Data        string `json:"data"`
-}
-
-type ErrorResponse struct {
-	Message string       `json:"message"`
-	Error   string       `json:"error"`
-	Status  int          `json:"status"`
-	Cause   []ErrorCause `json:"cause"`
-}
-
-// SearchParameter - estrutura com nome e valor dos parâmetros a serem passados para realização da busca
-type SearchParameter struct {
-	Name  string
-	Value string
-}
-
-type Paging struct {
-	Total  int `json:"total"`
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
 type SearchResponse struct {
-	Paging  Paging    `json:"paging"`
-	Results []Payment `json:"results"`
+	Paging  mpgeral.Paging `json:"paging"`
+	Results []Payment      `json:"results"`
 }
 
 //=========================================================================//
@@ -274,44 +245,23 @@ type SearchResponse struct {
 //=========================================================================//
 
 // SearchPayments busca os pagamentos conforme a lista de parâmetros passada.
-func SearchPayments(parameters []SearchParameter, accessToken string) (SearchResponse, error) {
+func SearchPayments(parameters []mpgeral.SearchParameter, accessToken string) (SearchResponse, error) {
 
-	var uri = paymentsURI + "search?"
-
-	if parameters != nil {
-		for _, element := range parameters {
-			uri += element.Name + "=" + element.Value + "&"
-		}
-	}
-
-	uri += "access_token=" + accessToken
+	resposta, err := mpgeral.APISearch(parameters, paymentsURI, accessToken)
 
 	var searchResponse SearchResponse
 
-	response, err := http.Get(uri)
+	if err != nil {
+		return searchResponse, err
+	}
+
+	err = json.NewDecoder(strings.NewReader(resposta)).Decode(&searchResponse)
 
 	if err != nil {
 		return searchResponse, err
 	}
 
-	data, _ := ioutil.ReadAll(response.Body)
-
-	fmt.Println(string(data))
-
-	if response.StatusCode >= 200 && response.StatusCode < 300 {
-		err = json.Unmarshal(data, &searchResponse)
-
-		return searchResponse, nil
-	}
-	var erroResposta ErrorResponse
-
-	err = json.Unmarshal(data, &erroResposta)
-
-	if err != nil {
-		return searchResponse, err
-	}
-
-	return searchResponse, errors.New(erroResposta.Message)
+	return searchResponse, nil
 }
 
 // GetPaymentByID busca um pagamento pelo seu id.
@@ -330,13 +280,14 @@ func GetPaymentByID(id int, accessToken string) (Payment, error) {
 	data, _ := ioutil.ReadAll(response.Body)
 
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
-		err = json.Unmarshal(data, &payment)
+
+		err = json.NewDecoder(strings.NewReader(string(data))).Decode(&payment)
 
 		return payment, nil
 	}
-	var erroResposta ErrorResponse
+	var erroResposta mpgeral.ErrorResponse
 
-	err = json.Unmarshal(data, &erroResposta)
+	err = json.NewDecoder(strings.NewReader(string(data))).Decode(&erroResposta)
 
 	if err != nil {
 		return payment, err
