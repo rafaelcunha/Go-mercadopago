@@ -22,7 +22,7 @@ type Phone struct {
 type Payer struct {
 	EntityType     string                 `json:"entity_type"`
 	Type           string                 `json:"type"`
-	ID             int                    `json:"id"`
+	ID             int64                  `json:"id,string"`
 	Email          string                 `json:"email"`
 	Identification mpgeral.Identification `json:"identification"`
 	Phone          Phone                  `json:"phone"`
@@ -33,7 +33,7 @@ type Payer struct {
 type Collector struct {
 	EntityType     string                 `json:"entity_type"`
 	Type           string                 `json:"type"`
-	ID             int                    `json:"id"`
+	ID             int64                  `json:"id"`
 	Email          string                 `json:"email"`
 	Identification mpgeral.Identification `json:"identification"`
 	Phone          Phone                  `json:"phone"`
@@ -42,36 +42,36 @@ type Collector struct {
 }
 
 type Order struct {
+	ID   string `json:"id"`
 	Type string `json:"type"`
-	ID   int    `json:"id"`
 }
 
 type TransactionDetails struct {
-	FinancialInstitution     string  `json:"financial_institution"`
-	NetReceivedAmount        float32 `json:"net_received_amount"`
-	TotalPaidAmount          float32 `json:"total_paid_amount"`
-	InstallmentAmount        float32 `json:"installment_amount"`
-	OverpaidAmount           float32 `json:"overpaid_amount"`
-	ExternalResourceURL      string  `json:"external_resource_url"`
-	PaymentMethodReferenceID string  `json:"payment_method_reference_id"`
-	PayableDeferralPeriod    string  `json:"payable_deferral_period"`
-	AcquirerReference        int     `json:"acquirer_reference"`
+	TotalPaidAmount          float64     `json:"total_paid_amount"`
+	AcquirerReference        interface{} `json:"acquirer_reference"`
+	PaymentMethodReferenceID interface{} `json:"payment_method_reference_id"`
+	NetReceivedAmount        float64     `json:"net_received_amount"`
+	FinancialInstitution     interface{} `json:"financial_institution"`
+	PayableDeferralPeriod    interface{} `json:"payable_deferral_period"`
+	InstallmentAmount        float64     `json:"installment_amount"`
+	ExternalResourceURL      string      `json:"external_resource_url"`
+	OverpaidAmount           float64     `json:"overpaid_amount"`
 }
 
 type Cardholder struct {
-	Name           string                 `json:"name"`
 	Identification mpgeral.Identification `json:"identification"`
+	Name           string                 `json:"name"`
 }
 
 type Card struct {
-	ID              int        `json:"id"`
-	LastFourDigits  string     `json:"last_four_digits"`
+	ID              int64      `json:"id,string"`
 	FirstSixDigits  string     `json:"first_six_digits"`
-	ExpirationYear  int        `json:"expiration_year"`
 	ExpirationMonth int        `json:"expiration_month"`
-	DateCreated     string     `json:"date_created"`      // Formatar corretamente a data
-	DateLastUpdated string     `json:"date_last_updated"` // Formatar corretamente a data
 	Cardholder      Cardholder `json:"cardholder"`
+	DateLastUpdated string     `json:"date_last_updated"`
+	DateCreated     string     `json:"date_created"`
+	ExpirationYear  int        `json:"expiration_year"`
+	LastFourDigits  string     `json:"last_four_digits"`
 }
 
 type Item struct {
@@ -143,101 +143,96 @@ type Source struct {
 }
 
 type Refund struct {
-	ID        int     `json:"id"`
-	PaymentID int     `json:"PaymentID"`
-	Amount    float32 `json:"amount"`
-	//Metadata   string `json:"metadata"`
-	DateCreated          string `json:"date_created"`
-	UniqueSequenceNumber int    `json:"unique_sequence_number"`
-	Status               string `json:"status"`
-	PayerMovementID      int    `json:"payer_movement_id"`
-	CollectorMovementID  int    `json:"collector_movement_id"`
-	GtwRefundID          int    `json:"gtw_refund_id"`
-	CounterCurrency      int    `json:"counter_currency"`
-	Source               Source `json:"source"`
-}
-
-type Metadata struct {
-}
-
-type InternalMetadata struct {
+	CounterCurrency      interface{} `json:"counter_currency"`
+	Amount               float64     `json:"amount"`
+	ID                   int64       `json:"id"`
+	Source               Source      `json:"source"`
+	Status               string      `json:"status"`
+	CollectorMovementID  int64       `json:"collector_movement_id"`
+	DateCreated          string      `json:"date_created"`
+	GtwRefundID          int64       `json:"gtw_refund_id"`
+	PaymentID            int64       `json:"payment_id"`
+	PayerMovementID      int64       `json:"payer_movement_id"`
+	UniqueSequenceNumber int64       `json:"unique_sequence_number"`
+	Metadata             interface{} `json:"metadata"`
 }
 
 // Payment estrutua para receber o Json de um pagamento
 type Payment struct {
-	ID                        int                `json:"id"`
-	DateCreated               string             `json:"date_created"`       // Formatar corretamente a data
-	DateApproved              string             `json:"date_approved"`      // Formatar corretamente a data
-	DateLastUpdated           string             `json:"date_last_updated"`  // Formatar corretamente a data
-	DateOfExpiration          string             `json:"date_of_expiration"` // Formatar corretamente a data
-	MoneyReleaseDate          string             `json:"money_release_date"` // Formatar corretamente a data
-	OperationType             string             `json:"operation_type"`
-	IssuerID                  int                `json:"issuer_id"`
+	AcquirerReconciliation    []interface{}      `json:"acquirer_reconciliation"`
+	StatementDescriptor       string             `json:"statement_descriptor"`
+	Captured                  bool               `json:"captured"`
+	DateLastUpdated           string             `json:"date_last_updated"`
+	MerchantAccountID         interface{}        `json:"merchant_account_id"`
+	PayerID                   int                `json:"payer_id"`
+	IssuerID                  string             `json:"issuer_id"`
+	Description               string             `json:"description"`
+	TransactionAmount         int                `json:"transaction_amount"`
+	Card                      Card               `json:"card"`
+	TransactionDetails        TransactionDetails `json:"transaction_details"`
+	ClientID                  string             `json:"client_id"`
+	CouponAmount              int                `json:"coupon_amount"`
+	Metadata                  interface{}        `json:"metadata"`
+	MoneyReleaseSchema        interface{}        `json:"money_release_schema"`
 	CollectorID               int                `json:"collector_id"`
-	Payer                     Payer              `json:"payer"`
-	BinaryMode                bool               `json:"binary_mode"`
-	LiveMode                  bool               `json:"live_mode"`
+	Status                    string             `json:"status"`
+	FinancingType             interface{}        `json:"financing_type"`
+	ProcessingMode            string             `json:"processing_mode"`
+	StatusDetail              string             `json:"status_detail"`
+	TransactionID             string             `json:"transaction_id"`
+	Installments              int                `json:"installments"`
+	InternalMetadata          interface{}        `json:"internal_metadata"`
+	Refunds                   []Refund           `json:"refunds"`
+	PaymentTypeID             string             `json:"payment_type_id"`
+	CounterCurrency           interface{}        `json:"counter_currency"`
+	ProfileID                 string             `json:"profile_id"`
+	PayerTags                 []interface{}      `json:"payer_tags"`
+	ReserveID                 interface{}        `json:"reserve_id"`
+	CouponID                  int                `json:"coupon_id"`
+	ShippingAmount            int                `json:"shipping_amount"`
+	FeeDetails                []FeeDetails       `json:"fee_details"`
+	Acquirer                  interface{}        `json:"acquirer"`
+	DateCreated               string             `json:"date_created"`
+	ID                        int64              `json:"id"`
+	Collector                 Collector          `json:"collector"`
+	DateOfExpiration          string             `json:"date_of_expiration"`
+	MoneyReleaseDays          interface{}        `json:"money_release_days"`
 	Order                     Order              `json:"order"`
 	ExternalReference         string             `json:"external_reference"`
-	Description               string             `json:"description"`
-	Metadata                  Metadata           `json:"metadata"`
-	InternalMetadata          InternalMetadata   `json:"internal_metadata"`
-	CurrencyID                string             `json:"currency_id"`
-	TransactionAmount         float32            `json:"transaction_amount"`
-	TransactionAmountRefunded float32            `json:"transaction_amount_refunded"`
-	CouponAmount              float32            `json:"coupon_amount"`
-	CampaignID                int                `json:"campaign_id"`
-	CouponCode                string             `json:"coupon_code"`
-	TransactionDetails        TransactionDetails `json:"transaction_details"`
-	FeeDetails                []FeeDetails       `json:"fee_details"`
-	DifferentialPricingID     int                `json:"differential_pricing_id"`
-	ApplicationFee            float32            `json:"application_fee"`
-	Status                    string             `json:"status"`
-	StatusDetail              string             `json:"status_detail"`
-	Capture                   bool               `json:"capture"`
-	Captured                  bool               `json:"captured"`
-	CallForAuthorizeID        string             `json:"call_for_authorize_id"`
-	PaymentMethodID           string             `json:"payment_method_id"`
-	PaymentTypeID             string             `json:"payment_type_id"`
-	Token                     string             `json:"token"`
-	Card                      Card               `json:"card"`
-	StatementDescriptor       string             `json:"statement_descriptor"`
-	Installments              int                `json:"installments"`
-	NotificationURL           string             `json:"notification_url"`
-	CallbackURL               string             `json:"callback_url"`
-	AdditionalInfo            AdditionalInfo     `json:"additional_info"`
-	Barcode                   Barcode            `json:"barcode"`
-	PayerID                   int                `json:"payer_id"`
-	SponsorID                 int                `json:"sponsor_id"`
-	AuthorizationCode         string             `json:"authorization_code"`
-	MoneyReleaseSchema        int                `json:"money_release_schema"`
-	CounterCurrency           int                `json:"counter_currency"`
-	SiteID                    string             `json:"site_id"`
-	Marketplace               string             `json:"marketplace"`
-	ApplicationID             string             `json:"application_id"`
-	TransactionID             string             `json:"transaction_id"`
-	CouponID                  int                `json:"coupon_id"`
-	RiskExecutionID           int                `json:"risk_execution_id"`
 	AvailableActions          []string           `json:"available_actions"`
-	ProfileID                 string             `json:"profile_id"`
-	APIVersion                string             `json:"api_version"`
-	ClientID                  string             `json:"client_id"`
-	ShippingAmount            int                `json:"shipping_amount"`
-	ReserveID                 int                `json:"reserve_id"`
-	ProcessingMode            string             `json:"processing_mode"`
-	MerchantAccountID         int                `json:"merchant_account_id"`
-	Acquirer                  int                `json:"acquirer"`
+	ApplicationID             int                `json:"application_id"`
+	Marketplace               string             `json:"marketplace"`
 	MerchantNumber            int                `json:"merchant_number"`
-	//AcquirerReconciliation    []string             `json:"acquirer_reconciliation"`
-	DeductionSchema  int       `json:"deduction_schema"`
-	MoneyReleaseDays int       `json:"money_release_days"`
-	Collector        Collector `json:"collector"`
-	Refunds          []Refund  `json:"refunds"`
+	CallForAuthorizeID        int                `json:"call_for_authorize_id"`
+	RiskExecutionID           int64              `json:"risk_execution_id"`
+	APIVersion                string             `json:"api_version"`
+	CurrencyID                string             `json:"currency_id"`
+	SponsorID                 int64              `json:"sponsor_id"`
+	DeductionSchema           interface{}        `json:"deduction_schema"`
+	PaymentMethodID           string             `json:"payment_method_id"`
+	AdditionalInfo            AdditionalInfo     `json:"additional_info"`
+	SiteID                    string             `json:"site_id"`
+	BinaryMode                bool               `json:"binary_mode"`
+	OperationType             string             `json:"operation_type"`
+	DifferentialPricingID     interface{}        `json:"differential_pricing_id"`
+	MoneyReleaseDate          string             `json:"money_release_date"`
+	Payer                     Payer              `json:"payer"`
+	NotificationURL           string             `json:"notification_url"`
+	TransactionAmountRefunded float64            `json:"transaction_amount_refunded"`
+	CollectorTags             []string           `json:"collector_tags"`
+	AuthorizationCode         string             `json:"authorization_code"`
+	DateApproved              string             `json:"date_approved"`
+	LiveMode                  bool               `json:"live_mode"`
 }
 
+type paymentSearch struct {
+	ID int64 `json:"id"`
+}
+
+// SearchResponse - Resposta à search em payments apenas com os ids dos pagamentos
 type SearchResponse struct {
-	Paging  mpgeral.Paging `json:"paging"`
-	Results []Payment      `json:"results"`
+	Paging  mpgeral.Paging  `json:"paging"`
+	Results []paymentSearch `json:"results"`
 }
 
 //=========================================================================//

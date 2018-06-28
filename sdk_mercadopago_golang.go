@@ -22,8 +22,8 @@ func main() {
 	// Teste do search de payments
 	var parametros = []mpgeral.SearchParameter{
 		mpgeral.SearchParameter{
-			Name:  "id",
-			Value: "3678606946",
+			Name:  "collector.id",
+			Value: "52192556",
 		},
 	}
 
