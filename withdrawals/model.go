@@ -1,12 +1,8 @@
 package withdrawals
 
 import (
-	"encoding/json"
-
 	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
 )
-
-const withdrawalsURI string = mpgeral.MLURI + "withdrawals/"
 
 // BankAccount - Estrutura contendo informação da conta bancária
 type BankAccount struct {
@@ -46,28 +42,4 @@ type Withdrawal struct {
 type SearchResponse struct {
 	Paging  mpgeral.Paging `json:"paging"`
 	Results []Withdrawal   `json:"results"`
-}
-
-//=========================================================================//
-//===============================Funções===================================//
-//=========================================================================//
-
-// SearchWithdrawals - busca os saques conforme a lista de parâmetros passada.
-func SearchWithdrawals(parameters []mpgeral.SearchParameter, accessToken string) (SearchResponse, error) {
-
-	resposta, err := mpgeral.APISearch(parameters, withdrawalsURI, accessToken)
-
-	var searchResponse SearchResponse
-
-	if err != nil {
-		return searchResponse, err
-	}
-
-	err = json.Unmarshal(resposta, &searchResponse)
-
-	if err != nil {
-		return searchResponse, err
-	}
-
-	return searchResponse, nil
 }

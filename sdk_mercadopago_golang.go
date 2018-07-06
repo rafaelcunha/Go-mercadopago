@@ -10,7 +10,7 @@ import (
 func main() {
 
 	// Teste do get em payments
-	/*pagamento, err := payments.GetPaymentByID(3678606946, "ADM-601-062811-028424ae286b6edd34035ac094ddac0e-rcunha-62867623")
+	/*pagamento, err := payments.GetPaymentByID(3678606946, "APP...")
 
 	if err != nil {
 		fmt.Println(err)
@@ -27,7 +27,7 @@ func main() {
 		},
 	}
 
-	searchResponse, err := payments.SearchPayments(parametros, "ADM-601-062811-028424ae286b6edd34035ac094ddac0e-rcunha-62867623")
+	searchResponse, err := payments.SearchPayments(parametros, "APP...")
 
 	if err != nil {
 		fmt.Println(err)
@@ -49,7 +49,7 @@ func main() {
 		},
 	}
 
-	searchResponse, err := withdrawals.SearchWithdrawals(parametros, "ADM-601-062811-028424ae286b6edd34035ac094ddac0e-rcunha-62867623")
+	searchResponse, err := withdrawals.SearchWithdrawals(parametros, "APP...")
 
 	if err != nil {
 		fmt.Println(err)
