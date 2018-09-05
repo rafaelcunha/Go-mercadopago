@@ -1,5 +1,7 @@
 package webhooks
 
+var m map[string]int
+
 // Data - Estrutura do campo data do webhook
 type Data struct {
 	ID string `json:"id"`

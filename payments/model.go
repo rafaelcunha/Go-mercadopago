@@ -1,6 +1,8 @@
 package payments
 
 import (
+	"sync"
+
 	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
 )
 
@@ -158,7 +160,7 @@ type Payment struct {
 	PayerID                   int                `json:"payer_id"`
 	IssuerID                  string             `json:"issuer_id"`
 	Description               string             `json:"description"`
-	TransactionAmount         int                `json:"transaction_amount"`
+	TransactionAmount         float64            `json:"transaction_amount"`
 	Card                      Card               `json:"card"`
 	TransactionDetails        TransactionDetails `json:"transaction_details"`
 	ClientID                  string             `json:"client_id"`
@@ -224,4 +226,11 @@ type paymentSearch struct {
 type SearchResponse struct {
 	Paging  mpgeral.Paging  `json:"paging"`
 	Results []paymentSearch `json:"results"`
+}
+
+// ListaPagamentos - Lista de pagamentos
+type ListaPagamentos struct {
+	mutex      sync.Mutex
+	wait       sync.WaitGroup
+	Pagamentos []*Payment
 }
