@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
+	"github.com/rafaelcunha/Go-mercadopago/conexaomp/mpgeral"
 )
 
 const paymentsURI string = mpgeral.MPURI + "payments/"

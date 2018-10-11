@@ -3,15 +3,17 @@ package payments
 import (
 	"sync"
 
-	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
+	"github.com/rafaelcunha/Go-mercadopago/conexaomp/mpgeral"
 )
 
+// Phone - Estrutura de telefone no pagamento
 type Phone struct {
 	AreaCode  string `json:"area_code"`
 	Number    string `json:"number"`
 	Extension string `json:"extension"`
 }
 
+// Payer - estrutura do campo payer no pagamento
 type Payer struct {
 	EntityType     string                 `json:"entity_type"`
 	Type           string                 `json:"type"`
@@ -23,6 +25,7 @@ type Payer struct {
 	LastName       string                 `json:"last_name"`
 }
 
+// Collector - Estrutura do campo collector do pagamento
 type Collector struct {
 	EntityType     string                 `json:"entity_type"`
 	Type           string                 `json:"type"`
@@ -34,6 +37,7 @@ type Collector struct {
 	LastName       string                 `json:"last_name"`
 }
 
+// Order - Estrutura do campor oreder d0 pagamento
 type Order struct {
 	ID   string `json:"id"`
 	Type string `json:"type"`

@@ -3,21 +3,20 @@ package main
 import (
 	"fmt"
 
-	"github.com/rafaelcunha/Go-mercadopago/mpgeral"
-	"github.com/rafaelcunha/Go-mercadopago/withdrawals"
+	"github.com/rafaelcunha/Go-mercadopago/payments"
 )
 
 func main() {
 
 	// Teste do get em payments
-	/*pagamento, err := payments.GetPaymentByID(3678606946, "APP...")
+	_, err := payments.GetPaymentByID(3678606946, "ADM-601-091010-635f0bd46da592d781cb660af57cf512-rcunha-62867623")
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("%+v\n", pagamento)*/
+	//fmt.Printf("%+v\n", pagamento)
 
 	// Teste do search de payments
 	/*var parametros = []mpgeral.SearchParameter{
@@ -38,7 +37,7 @@ func main() {
 
 	// Teste o search de withdrawals
 
-	var parametros = []mpgeral.SearchParameter{
+	/*var parametros = []mpgeral.SearchParameter{
 		mpgeral.SearchParameter{
 			Name:  "user_id",
 			Value: "217979967",
@@ -56,5 +55,5 @@ func main() {
 		return
 	}
 
-	fmt.Printf("%+v\n", searchResponse)
+	fmt.Printf("%+v\n", searchResponse)*/
 }
